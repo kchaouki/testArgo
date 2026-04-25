@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: myapp
-          image: kchaouki/app1:1.0          # <-- replace with your DockerHub image
+          image: kchaouki/testapp:1.0
           ports:
             - containerPort: 80
           resources:
