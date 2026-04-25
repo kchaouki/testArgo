@@ -33,15 +33,12 @@ else
 fi
 
 # ── Create cluster ───────────────────────────────────────────────────────────
-if k3d cluster list | grep -q "^${CLUSTER_NAME}"; then
-  echo "==> Cluster '${CLUSTER_NAME}' already exists, skipping creation."
-else
-  echo "==> Creating k3d cluster '${CLUSTER_NAME}'..."
-  k3d cluster create "${CLUSTER_NAME}" \
-    --agents 2 \
-    --port "8080:80@loadbalancer" \
-    --port "8443:443@loadbalancer"
-fi
+echo "==> Creating k3d cluster '${CLUSTER_NAME}'..."
+k3d cluster create "${CLUSTER_NAME}" \
+  --agents 2 \
+  --port "8080:80@loadbalancer" \
+  --port "8443:443@loadbalancer" \
+  --port "9090:80@loadbalancer"
 
 echo "==> Setting kubectl context..."
 k3d kubeconfig merge "${CLUSTER_NAME}" --kubeconfig-merge-default
