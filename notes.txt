@@ -1,0 +1,66 @@
+The argocd-cm ConfigMap is ArgoCD's main configuration file. Here are all the useful settings you
+   can put in it:                                                                                  
+                                                                                                   
+  ---                                                                                              
+  Sync & Polling                                                                                   
+  timeout.reconciliation: 300s      # how often ArgoCD polls git (default: 180s)
+                                                                                
+  ---                                                                                              
+  Git Repositories (add private repos)                                                             
+  repositories: |                                                                                  
+    - url: https://github.com/youruser/yourrepo                                                    
+      passwordSecret:                                                                              
+        name: my-secret
+        key: password                                                                              
+      usernameSecret:                                       
+        name: my-secret                                                                            
+        key: username
+                                                                                                   
+  ---                                                       
+  Resource Health Checks (custom)
+  resource.customizations.health.apps_Deployment: |                                                
+    hs = {}                                        
+    hs.status = "Progressing"                                                                      
+    return hs                                                                                      
+   
+  ---                                                                                              
+  Ignore Differences (stop ArgoCD from reverting certain fields)
+  resource.compareoptions: |                                                                       
+    ignoreAggregatedRoles: true
+                                                                                                   
+  resource.customizations.ignoreDifferences.apps_Deployment: |
+    jsonPointers:                                                                                  
+    - /spec/replicas        # ignore if someone manually scales
+
+  ---                                                                                              
+  OIDC / SSO Login (GitHub, Google, etc.)
+  url: https://argocd.localhost:9090                                                               
+  oidc.config: |                                            
+    name: GitHub                                                                                   
+    issuer: https://github.com                              
+    clientID: your-client-id                                                                       
+    clientSecret: your-client-secret                                                               
+   
+  ---                                                                                              
+  Disable anonymous access                                  
+  users.anonymous.enabled: "false"
+
+  ---                                                                                              
+  Allow only certain resources to be managed
+  resource.inclusions: |                                                                           
+    - apiGroups:                                            
+      - apps                                                                                       
+      kinds:                                                
+      - Deployment
+      clusters:                                                                                    
+      - '*'
+                                                                                                   
+  ---                                                       
+  Helm & Kustomize settings
+  helm.valuesFileSchemes: http,https                                                               
+  kustomize.buildOptions: --enable-helm
+                                                                                                   
+  ---                                                       
+  The most commonly used ones in a local setup like yours are timeout.reconciliation and           
+  resource.customizations.ignoreDifferences (useful when you don't want ArgoCD to fight you over   
+  replicas if you scale manually).
